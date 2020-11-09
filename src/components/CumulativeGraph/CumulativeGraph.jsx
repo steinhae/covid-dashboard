@@ -1,8 +1,6 @@
 import React from "react";
 import { ResponsiveLine } from "@nivo/line";
 
-var tooltip = require('@nivo/tooltip');
-
 const COLOR_CASES = '#4e73df '
 const COLOR_RECOVERED = '#1cc88a'
 const COLOR_DECEASED = '#f6c23e'
@@ -14,8 +12,9 @@ function extractCaseData(result) {
   let sumDeceased = []
   result.features.forEach(element => {
     var meldeDatum = new Date(element.attributes.Meldedatum)
-      .toLocaleDateString("de-DE")
-      .slice(0, -5)
+        .toISOString()
+        .split('T')[0]
+
     sumCases.push({
       x: meldeDatum,
       y: element.attributes.SummeFall
@@ -29,6 +28,7 @@ function extractCaseData(result) {
       y: element.attributes.SummeTodesfall
     });
   })
+
   lineData = [
     {
       id: "Summe Fälle",
@@ -76,15 +76,22 @@ class CovidKumuliert extends React.Component {
           <ResponsiveLine
             colors={[COLOR_CASES, COLOR_RECOVERED, COLOR_DECEASED]}
             data={lineData}
+            curve="basis"
             margin={{
               top: 10,
               right: 45,
               bottom: 75,
               left: 60
             }}
-            pointSize={8}
+            enablePoints={false}
             useMesh={true}
-
+            xFormat="time:%Y-%m-%d"
+            xScale={{
+              type: 'time',
+              format: '%Y-%m-%d',
+              useUTC: false,
+              precision: 'day',
+            }}
             axisLeft={{
               orient: 'left',
               tickSize: 5,
@@ -95,27 +102,13 @@ class CovidKumuliert extends React.Component {
               legendPosition: 'middle'
             }}
             axisBottom={{
-              orient: 'bottom',
-              tickSize: 5,
-              tickPadding: 5,
+              format: '%b %d',
               legend: 'Meldedatum',
-              tickRotation: 90,
-              legendOffset: 61,
-              legendPosition: 'middle'
+              legendOffset: 52,
+              legendPosition: 'middle',
+              orient: 'bottom',
             }}
-            tooltip={input => {
-              let point = input.point
-              return React.createElement(tooltip.BasicTooltip, {
-                id: React.createElement(
-                  "span",
-                  null,
-                  point.serieId + ": ",
-                  React.createElement("strong", null, point.data.yFormatted)),
-                enableChip: true,
-                color: point.serieColor
-              });
-            }
-            }
+            enableSlices="x"
           />
         </div>
       </div>
