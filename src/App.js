@@ -35,16 +35,21 @@ function calculateStatistics(caseData) {
   let totalRecovered = lastElement.SummeGenesen;
   let totalDeceased = lastElement.SummeTodesfall;
   let openCases = totalCases - (totalRecovered + totalDeceased);
+  let lastUpdate = new Date(lastElement.Meldedatum).toLocaleDateString("de-DE", {weekday:'long', year: 'numeric', month: 'long', day: 'numeric' })
   return {
     'totalCases': totalCases,
-    'totalRecovered': totalRecovered,
-    'totalDeceased': totalDeceased,
-    'openCases': openCases,
-    'lastUpdate': new Date(lastElement.Meldedatum).toLocaleDateString("de-DE"),
+    'totalRecovered': totalRecovered + roundAndFormatAsPercent(totalRecovered, totalCases),
+    'totalDeceased': totalDeceased  + roundAndFormatAsPercent(totalDeceased, totalCases),
+    'openCases': openCases  + roundAndFormatAsPercent(openCases, totalCases),
+    'lastUpdate': lastUpdate,
     'deathRate': calculateRate(totalDeceased, totalCases),
     'recoveredRate': calculateRate(totalRecovered, totalCases),
     'openCasesRate': calculateRate(openCases, totalCases)
   };
+}
+
+function roundAndFormatAsPercent(value, reference) {
+  return " (" + Math.round(value/reference * 100) + "%)"
 }
 
 function App() {
@@ -78,7 +83,7 @@ function App() {
             <div className="container-fluid">
 
               <div className="d-sm-flex align-items-center mb-4">
-                <h1 className="h4 mb-0 text-gray-800">LK Goslar</h1>
+                <h1 className="h4 mb-0 text-gray-800">LK Goslar am {statistics.statistics.lastUpdate}</h1>
               </div>
 
               <div className="row">
@@ -295,7 +300,9 @@ function App() {
           <footer className="sticky-footer bg-white">
             <div className="container my-auto">
               <div className="copyright text-center my-auto">
-                <span>Made by <a href="https://github.com/steinhae">https://github.com/steinhae</a> - Project on <a href="https://github.com/steinhae/covid-dashboard">Github</a></span><br></br>
+                <span>
+                  Made by <a href="https://github.com/steinhae">https://github.com/steinhae</a> - Project on <a href="https://github.com/steinhae/covid-dashboard">Github</a>
+                </span><br></br>
               </div>
             </div>
           </footer>
